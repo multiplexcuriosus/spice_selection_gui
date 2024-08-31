@@ -12,7 +12,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import CameraInfo, Image
 from threading import Lock
 
-from spice_selection_gui.srv._LocalizeColorMask import LocalizeColorMask,LocalizeColorMaskRequest
+from spice_selection_gui.srv._SpiceName import SpiceName,SpiceNameResponse
 
 class SpiceSelectionPlugin(Plugin):
 
@@ -21,7 +21,7 @@ class SpiceSelectionPlugin(Plugin):
 
         self.setObjectName('SpiceSelectionPlugin')
         
-        print("[SPICE SELECTION GUI:] Initialized")
+        print("[SpiceSelectionPlugin] : Initialized")
 
         # Process standalone plugin command-line arguments
         from argparse import ArgumentParser
@@ -46,39 +46,42 @@ class SpiceSelectionPlugin(Plugin):
         self._widget.pushButton_oil.clicked[bool].connect(self._handle_oil_clicked)
         self._widget.pushButton_vinegar.clicked[bool].connect(self._handle_vinegar_clicked)
 
+        self.chosen_spice = None
 
-        # Wait for service to be available
-        #print("Waiting for service: idx_finder_server...")
-        rospy.wait_for_service('idx_finder_server')
+        # Start service
+        self.service = rospy.Service("spice_name_server", SpiceName, self.service_request_callback)
 
-    def createRequest(self,target_bottle_name):
 
-        # Create request
-        request = LocalizeColorMaskRequest()
-        request.color_profile = target_bottle_name
+    def service_request_callback(self, request):
+        print("[SpiceSelectionPlugin] : Received request for spice name")
+        
+        count = 0
+        while self.chosen_spice is None:
+            pass
+            #count+=1
+            #if count % 1000000 == 0:
+            #    print("Waiting for pilot to pick target spice...")
+    
 
-        # Create service handle
-        color_mask_localization = rospy.ServiceProxy('idx_finder_server', LocalizeColorMask)
-
-        # Call service
-        response = color_mask_localization(request)
-        rospy.loginfo("[SpiceUpSelectionGUI] : Received idx: "+str(response.idx))
-
+        # Prepare response
+        response = SpiceNameResponse()
+        response.spice_name = self.chosen_spice
+        return response
 
     def _handle_pepper_clicked(self):
-        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("PEPPER selected"))
-        self.createRequest("pepper")
+        rospy.loginfo("[SpiceSelectionPlugin] : "+str("PEPPER selected"))
+        self.chosen_spice = "pepper"
         
     def _handle_salt_clicked(self):
-        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("SALT selected"))
-        self.createRequest("salt")
+        rospy.loginfo("[SpiceSelectionPlugin] : "+str("SALT selected"))
+        self.chosen_spice = "salt"
 
     def _handle_oil_clicked(self):
-        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("OIL selected"))
-        self.createRequest("oil")
+        rospy.loginfo("[SpiceSelectionPlugin] : "+str("OIL selected"))
+        self.chosen_spice = "oil"
     
     def _handle_vinegar_clicked(self):
-        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("VINEGAR selected"))
-        self.createRequest("vinegar")
+        rospy.loginfo("[SpiceSelectionPlugin] : "+str("VINEGAR selected"))
+        self.chosen_spice = "vinegar"
     
   
