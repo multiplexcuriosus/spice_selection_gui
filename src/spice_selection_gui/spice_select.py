@@ -21,7 +21,11 @@ class SpiceSelectionPlugin(Plugin):
 
         self.setObjectName('SpiceSelectionPlugin')
         
+<<<<<<< HEAD
         print("[SpiceSelectionPlugin] : Initialized")
+=======
+        print("[SpiceSelectionPlugin:] Initialized")
+>>>>>>> ead0c1925ec6d2b143b20369bbd27b3f8f680b65
 
         # Process standalone plugin command-line arguments
         from argparse import ArgumentParser
@@ -54,6 +58,7 @@ class SpiceSelectionPlugin(Plugin):
 
     def service_request_callback(self, request):
         print("[SpiceSelectionPlugin] : Received request for spice name")
+<<<<<<< HEAD
         
         count = 0
         while self.chosen_spice is None:
@@ -62,10 +67,15 @@ class SpiceSelectionPlugin(Plugin):
             #if count % 1000000 == 0:
             #    print("Waiting for pilot to pick target spice...")
     
+=======
+        while self.chosen_spice is None:
+            pass
+>>>>>>> ead0c1925ec6d2b143b20369bbd27b3f8f680b65
 
         # Prepare response
         response = SpiceNameResponse()
         response.spice_name = self.chosen_spice
+<<<<<<< HEAD
         return response
 
     def _handle_pepper_clicked(self):
@@ -82,6 +92,23 @@ class SpiceSelectionPlugin(Plugin):
     
     def _handle_vinegar_clicked(self):
         rospy.loginfo("[SpiceSelectionPlugin] : "+str("VINEGAR selected"))
+=======
+
+    def _handle_pepper_clicked(self):
+        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("PEPPER selected"))
+        self.chosen_spice = "pepper"
+        
+    def _handle_salt_clicked(self):
+        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("SALT selected"))
+        self.chosen_spice = "salt"
+
+    def _handle_oil_clicked(self):
+        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("OIL selected"))
+        self.chosen_spice = "oil"
+    
+    def _handle_vinegar_clicked(self):
+        rospy.loginfo("[SpiceUpSelectionGUI] : "+str("VINEGAR selected"))
+>>>>>>> ead0c1925ec6d2b143b20369bbd27b3f8f680b65
         self.chosen_spice = "vinegar"
     
   
