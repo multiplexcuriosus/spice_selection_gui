@@ -15,7 +15,7 @@ catkin_python_setup()
 
 add_service_files(
    FILES
-   SpiceName.srv
+   GetSpiceName.srv
 )
 
 ## Generate actions in the 'action' folder

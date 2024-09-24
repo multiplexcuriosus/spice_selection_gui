@@ -1,6 +1,0 @@
-# Request constants
-string color_profile
----
-# Response constants
-bool success
-int8 idx

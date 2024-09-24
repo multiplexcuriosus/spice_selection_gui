@@ -12,23 +12,18 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import CameraInfo, Image
 from threading import Lock
 
-from spice_selection_gui.srv._SpiceName import SpiceName,SpiceNameResponse
+from spice_selection_gui.srv._GetSpiceName import GetSpiceName,GetSpiceNameResponse
 
 class SpiceSelectionPlugin(Plugin):
 
     def __init__(self, context):
+        '''
+        The SpiceSelectionPlugin is simualtaneously an RQT-Plugin and a provider of the GetSpiceName service.
+        The pilot selects the target spice in the RQT gui. The target spice name is then sent back to the spiceUpCoordinator.
+        '''
         super(SpiceSelectionPlugin, self).__init__(context)
-
         self.setObjectName('SpiceSelectionPlugin')
         
-        print("[SpiceSelectionPlugin] : Initialized")
-
-        # Process standalone plugin command-line arguments
-        from argparse import ArgumentParser
-        parser = ArgumentParser()
-        parser.add_argument("-q", "--quiet", action="store_true",
-                      dest="quiet",
-                      help="Put plugin in silent mode")  # Add argument(s) to the parser.
         # Create QWidget
         self._widget = QWidget()
         ui_file = os.path.join(rospkg.RosPack().get_path('spice_selection_gui'), 'resource', 'SpiceSelectionPlugin.ui')
@@ -37,8 +32,6 @@ class SpiceSelectionPlugin(Plugin):
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)# Add widget to the user interface
-
-        ## CUSTOM CODE STARTING HERE ##########################################################################
 
         # GUI  callbacks
         self._widget.pushButton_pepper.clicked[bool].connect(self._handle_pepper_clicked)
@@ -49,24 +42,22 @@ class SpiceSelectionPlugin(Plugin):
         self.chosen_spice = None
 
         # Start service
-        self.service = rospy.Service("spice_name_server", SpiceName, self.service_request_callback)
+        self.service = rospy.Service("get_spice_name_service", GetSpiceName, self.service_request_callback)
+
+        print("[SpiceSelectionPlugin] : Initialized")
 
 
     def service_request_callback(self, request):
         print("[SpiceSelectionPlugin] : Received request for spice name")
         
-        count = 0
+        print("[SpiceSelectionPlugin] : Waiting for spice to be selected...")
         while self.chosen_spice is None:
-            pass
-            #count+=1
-            #if count % 1000000 == 0:
-            #    print("Waiting for pilot to pick target spice...")
-    
+            pass    
 
-        # Prepare response
-        response = SpiceNameResponse()
-        response.spice_name = self.chosen_spice
-
+        response = GetSpiceNameResponse()
+        response.target_spice_name = self.chosen_spice
+        self.chosen_spice = None # Reset spice choice
+        print("[SpiceSelectionPlugin] : Sending response")
         return response
 
     def _handle_pepper_clicked(self):
@@ -83,3 +74,4 @@ class SpiceSelectionPlugin(Plugin):
     
     def _handle_vinegar_clicked(self):
         rospy.loginfo("[SpiceSelectionPlugin] : "+str("VINEGAR selected"))
+        self.chosen_spice = "vinegar"
